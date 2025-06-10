@@ -1,0 +1,29 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  storageAccount: 'htmlstaticweb123'  # 실제 스토리지 계정 이름
+  containerName: '$web'
+  htmlFilePath: 'index.html'
+
+steps:
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'MyAzureConnection'  # DevOps에서 만든 Azure 서비스 연결
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Uploading to Azure Storage Static Website..."
+      az storage blob upload \
+        --account-name $(storageAccount) \
+        --container-name $(containerName) \
+        --name $(htmlFilePath) \
+        --file $(htmlFilePath) \
+        --overwrite \
+        --auth-mode login
+  displayName: 'Upload index.html to static website'
